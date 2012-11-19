@@ -185,7 +185,7 @@ void deactivate_locked_super(struct super_block *s)
 		 * We need to call rcu_barrier so all the delayed rcu free
 		 * inodes are flushed before we release the fs module.
 		 */
-		rcu_barrier();
+//		rcu_barrier();
 		put_filesystem(fs);
 		put_super(s);
 	} else {
