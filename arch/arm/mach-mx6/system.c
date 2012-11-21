@@ -359,6 +359,8 @@ void arch_idle_multi_core(void)
 
 void arch_idle(void)
 {
+	/* purge write buffers before idling */
+	wmb();
 	if (enable_wait_mode) {
 		mxc_cpu_lp_set(WAIT_UNCLOCKED_POWER_OFF);
 		if (mem_clk_on_in_wait) {
