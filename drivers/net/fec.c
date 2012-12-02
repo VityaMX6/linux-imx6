@@ -738,6 +738,23 @@ rx_processing_done:
 	return packet_cnt;
 }
 
+void check_for_rxf(struct fec_enet_private *fep, struct net_device *ndev,
+		u32 int_events)
+{
+	if (!(int_events & FEC_ENET_RXF)) {
+		u32 ievents = readl(fep->hwp + FEC_IEVENT);
+		if (!(ievents & FEC_ENET_RXF)) {
+			udelay(1);
+			ievents = readl(fep->hwp + FEC_IEVENT);
+			if (!(ievents & FEC_ENET_RXF)) {
+				dev_err(&ndev->dev, "missed rxf %x %x %x\n",
+						fep->prev_ievent, int_events,
+						ievents);
+			}
+		}
+	}
+}
+
 static irqreturn_t
 fec_enet_interrupt(int irq, void *dev_id)
 {
@@ -780,15 +797,7 @@ fec_enet_interrupt(int irq, void *dev_id)
 		spin_lock_irqsave(&fep->hw_lock, flags);
 		if (fec_enet_rx(ndev)) {
 			ret = IRQ_HANDLED;
-			if (!(int_events & FEC_ENET_RXF)) {
-				u32 ievents = readl(fep->hwp + FEC_IEVENT);
-				if (!(ievents & FEC_ENET_RXF)) {
-					dev_err(&ndev->dev, "%s: missed rxf "
-							"%x %x %x\n", __func__,
-							fep->prev_ievent,
-							int_events, ievents);
-				}
-			}
+			check_for_rxf(fep, ndev, int_events);
 		} else if (int_events & FEC_ENET_RXF) {
 			ret = IRQ_HANDLED;
 		}
