@@ -781,7 +781,7 @@ fec_enet_interrupt(int irq, void *dev_id)
 			 * For mx6, when mii interrupts are posted, other
 			 * interrupts appear to be cleared.
 			 */
-			int_events |= FEC_ENET_RXF | FEC_ENET_TXF;
+//			int_events |= FEC_ENET_RXF | FEC_ENET_TXF;
 		}
 #ifdef CONFIG_FEC_NAPI
 		if (int_events & FEC_ENET_RXF) {
